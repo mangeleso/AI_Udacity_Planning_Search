@@ -41,34 +41,108 @@ class HaveCakeProblem(Problem):
         possible_actions = []
         kb = PropKB()
         kb.tell(decode_state(state, self.state_map).pos_sentence())
+
+
+        #print("STATE: " , state)
+
+        #for clause in kb.clauses:
+        #    print("Clause KB", clause)
+
+        #for action in self.actions_list:
+        #    print("Action: ", action)
+
+        state = decode_state(state, self.state_map)
+        for f in state.pos:
+            print("STATE POS: ", f)
+        for f in state.neg:
+            print("STATE NEG: ", f)
+
+        for clause in kb.clauses:
+            print("CLAUSE KB: ", clause)
+
+
+
+
         for action in self.actions_list:
+            #print("**********")
+            #print("Action: ", action)
+            
             is_possible = True
             for clause in action.precond_pos:
+                #print("action pos", clause)
                 if clause not in kb.clauses:
                     is_possible = False
             for clause in action.precond_neg:
+                #print("action neg", clause)
                 if clause in kb.clauses:
                     is_possible = False
             if is_possible:
                 possible_actions.append(action)
+
+        for f in possible_actions:
+            print("possibl action: ", f)
+
         return possible_actions
 
     def result(self, state: str, action: Action):
         new_state = FluentState([], [])
         old_state = decode_state(state, self.state_map)
+
+        '''
+        print("************************")
+        print("Action:" , action)
+
+        print("New state: ", new_state.neg)
+        print("New state: ", new_state.pos)
+        '''
+
+        """
+        for fluent in old_state.pos:
+            print("POS old fluent: ", fluent)
+
+        for fluent in old_state.neg:
+            print("NEG old fluent: ", fluent)
+
+        for fluent in action.effect_add:
+            print("Action EFFECT ADD:", fluent)
+
+        for fluent in action.effect_rem:
+            print("Action EFFECT REM:", fluent)
+
+        for fluent in action.precond_pos:
+            print("Action PRECON POS:", fluent)
+
+        for fluent in action.precond_neg:
+            print("Action PRECON NEG:", fluent)
+        """
+
+
+        #print("OLD STATE", old_state)
         for fluent in old_state.pos:
             if fluent not in action.effect_rem:
                 new_state.pos.append(fluent)
         for fluent in action.effect_add:
             if fluent not in new_state.pos:
                 new_state.pos.append(fluent)
+
+
         for fluent in old_state.neg:
             if fluent not in action.effect_add:
                 new_state.neg.append(fluent)
         for fluent in action.effect_rem:
             if fluent not in new_state.neg:
                 new_state.neg.append(fluent)
-        return encode_state(new_state, self.state_map)
+
+        '''
+
+        for f in new_state.pos:
+            print("NEW S POS: ", f)
+
+        for f in new_state.neg:
+            print("NEW S NEG: ", f)
+
+        '''
+        return encode_state(new_state, self.state_map) 
 
     def goal_test(self, state: str) -> bool:
         kb = PropKB()
